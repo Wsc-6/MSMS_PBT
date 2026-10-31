@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pbt-msms"
+version = "0.1.0"
+description = "Leakage-safe MS/MS-to-PBT screening research pipeline"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "scipy>=1.10",
+  "scikit-learn>=1.3",
+  "PyYAML>=6.0",
+  "tqdm>=4.66",
+  "catboost>=1.2",
+  "jupyter>=1.0",
+  "nbconvert>=7.10",
+  "rdkit>=2023.9",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.8", "Pillow>=10", "openpyxl>=3.1"]
+extended = ["h5py", "pyopenms", "seaborn"]
+deep = ["torch>=2.1"]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+pbt-msms = "pbt_msms.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

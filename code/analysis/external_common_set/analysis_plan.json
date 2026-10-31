@@ -1,0 +1,101 @@
+{
+  "frozen_at_utc": "2026-10-26T05:11:39.287107+00:00",
+  "status": "FROZEN_BEFORE_REANALYSIS_RESULTS",
+  "interpretation": "Retrospective post-freeze descriptive sensitivity analysis; not preregistration of the original study and not model reselection.",
+  "tasks": [
+    "P_screen_not_ready_binary",
+    "B_LOGBCF_REGRESSION",
+    "T_EC50_MG_L_REGRESSION",
+    "T_LC50_MG_L_REGRESSION",
+    "T_NOEC_MG_L_REGRESSION"
+  ],
+  "models": [
+    "Frozen final model",
+    "Original six-field metadata",
+    "Matched nonfragment HGB"
+  ],
+  "primary_cohort": "novel_all",
+  "cohorts": {
+    "novel_all": [
+      "selected_novel",
+      "natural_novel"
+    ],
+    "selected_novel": [
+      "selected_novel"
+    ],
+    "natural_novel": [
+      "natural_novel"
+    ],
+    "transfer": [
+      "transfer"
+    ]
+  },
+  "primary_sample": "For each endpoint, same compounds with finite labels and finite scores from all three models, joined by inchikey_2d only. Cohorts are disjoint; confirm no repeated compound within an endpoint/model.",
+  "label_policy": "Use final_external y_true as canonical label; require cross-model labels within absolute tolerance 1e-5; do not match on floating labels.",
+  "score_policy": "All available frozen compound-level predictions before rejection. Preserve existing deployed probability calibration. raw_available means before abstention, not uncalibrated. Do not change thresholds, predictions or calibration.",
+  "metrics": {
+    "P_screen_not_ready_binary": "average_precision_score (AP), historically labeled pr_auc in code; no trapezoidal PR integration",
+    "regression": "MAE in existing log10 target units"
+  },
+  "comparisons": [
+    "Frozen final model vs Original six-field metadata",
+    "Frozen final model vs Matched nonfragment HGB"
+  ],
+  "positive_gain": "AP(final) - AP(control) for classification; MAE(control) - MAE(final) for regression",
+  "bootstrap": {
+    "unit": "compound",
+    "paired": true,
+    "replicates": 2000,
+    "seed": 42,
+    "generator": "numpy.random.default_rng(42), reinitialized for each cohort/endpoint; same sampled row indices for all models and both contrasts",
+    "CI": "2.5th and 97.5th percentile of valid replicates, pointwise descriptive 95% interval",
+    "single_class": "skip one-class resamples for AP and report valid count"
+  },
+  "inference": "No new p-values, significance labels or multiplicity-adjusted claims. Pointwise intervals do not account for model selection or dataset construction.",
+  "report": [
+    "absolute metrics and pointwise intervals",
+    "n and P class counts",
+    "both contrasts and pointwise intervals",
+    "per-model/cohort label and prediction missingness",
+    "raw-versus-retained counts",
+    "compound-level frozen input subset",
+    "frozen source SHA256 verification",
+    "selected_novel/natural_novel versus pooled interpretation"
+  ],
+  "restrictions": [
+    "no training",
+    "no external-label tuning or selection",
+    "no original artifact mutations",
+    "no full nested rerun"
+  ],
+  "inputs": {
+    "prediction_long": {
+      "path": "outputs/pbt_msms_v1/presubmission_robustness_v1/model_confounding_audit_40/40_predictions_long.csv.gz",
+      "sha256": "a3036e986baf36e05c2df0da4b4da4c3256f5acf6435bf2902c4b833356390ba"
+    },
+    "matched_unlabeled": {
+      "path": "outputs/pbt_msms_v1/presubmission_robustness_v1/model_confounding_audit_40/40_new_external_predictions_unlabeled.csv.gz",
+      "sha256": "bcb7ca2e4cab09b0d4626b86357a3a118b40cac4cd12419e8e59d11416b48cb4"
+    },
+    "matched_prediction_freeze": {
+      "path": "outputs/pbt_msms_v1/presubmission_robustness_v1/model_confounding_audit_40/40_prediction_freeze_before_label_join.json",
+      "sha256": "6b0cf757275fa0b504b8bf598e199469b4df54721bd0027ffd5e98f345d09fb7"
+    },
+    "final_external": {
+      "path": "outputs/pbt_msms_v1/chemvista_external_20_v1/20_final_selected_model_predictions.csv.gz",
+      "sha256": "411e7c0107ee3c3df5a477f0ca72d36dc415e0f914192f3f86e7ce79a687d0c3"
+    },
+    "original_metadata": {
+      "path": "outputs/pbt_msms_v1/chemvista_information_gain_38_v1/38_external_baseline_predictions.csv.gz",
+      "sha256": "0d0f59f67a045d2b0cb5a31f5936061cb26040d7d777751707afaaa32d21e7da"
+    },
+    "novel_applicability": {
+      "path": "outputs/pbt_msms_v1/split_v1/novel_structure_applicability.csv",
+      "sha256": "0c5e329987087932bbf7b1cf0353eb51d431a9b52e82d7c1bfa41d8ef8cf6747"
+    },
+    "final_registry": {
+      "path": "outputs/pbt_msms_v1/comparison_19_v1/19_final_model_registry.csv",
+      "sha256": "1ad545507b8e7c863cb76acc628f1afa9a3a07c631af23eedd1d5e156e75fc54"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+project:
+  name: PBT_MSMS_SCREENING_V1
+  random_seed: 42
+  output_dir: outputs/pbt_msms_v1
+
+inputs:
+  strict_targets: "性质数据/Cleaned_datasets/01_integrated_properties/07b_PBT_strict_MSMS_modeling_candidates.csv"
+  compound_master: "性质数据/Cleaned_datasets/01_integrated_properties/02_PBT_global_compound_master.csv"
+  public_spectrum_index: "质谱数据/EnvMolBench_Cleaned_Index.pkl"
+  public_spectrum_stream: "质谱数据/EnvMolBench_Cleaned.pkl"
+  chemvista_spectrum_index: "验证实验谱图数据/ChemVista_cleaned/ChemVista_spectrum_index.pkl"
+  chemvista_spectrum_peaks: "验证实验谱图数据/ChemVista_cleaned/ChemVista_spectrum_peaks.pkl"
+  chemvista_compound_index: "验证实验谱图数据/ChemVista_cleaned/ChemVista_compound_index.pkl"
+  chemvista_processing_summary: "验证实验谱图数据/ChemVista_cleaned/ChemVista_processing_summary.json"
+
+tasks:
+  primary:
+    - P_screen_not_ready_binary
+    - B_LOGBCF_REGRESSION
+    - T_EC50_MG_L_REGRESSION
+    - T_LC50_MG_L_REGRESSION
+    - T_NOEC_MG_L_REGRESSION
+  secondary:
+    - P_READY_BOD_D28_OECD301C_SOURCE_301C
+    - T_EC10_MG_L_REGRESSION
+  descriptive_only:
+    - P_formal_strict_binary
+    - vP_formal_strict_binary
+    - T_formal_strict_binary
+
+labels:
+  b_threshold_l_per_kg: 2000.0
+  vb_threshold_l_per_kg: 5000.0
+  aquatic_t_threshold_mg_l: 0.01
+  aggregate: median
+  conservative_aggregate: min
+
+split:
+  outer_folds: 5
+  inner_folds: 4
+  grouping_method: morgan_butina
+  butina_distance_threshold: 0.6
+  scaffold_generic: false
+  external_source: ChemVista
+  freeze_external_by_inchikey2d: true
+
+fingerprints:
+  morgan_radius: 2
+  morgan_bits: 2048
+  morgan_use_chirality: false
+  maccs_bits: 167
+
+spectrum:
+  max_peaks: 120
+  max_mz: 2000.0
+  strict_ppm: 20.0
+  sensitivity_ppm: [50.0, 100.0]
+  spectra_per_compound_per_epoch: 1
+
+models:
+  baseline_alphas: [0.01, 0.1, 1.0, 10.0, 100.0]
+  transformer:
+    d_model: 128
+    nhead: 4
+    num_layers: 4
+    dim_feedforward: 256
+    dropout: 0.1
+
+evaluation:
+  bootstrap_iterations: 1000
+  label_permutations: 50
+  abstain_quantile: 0.05
+  unlock_external: false
+
+label_sensitivity:
+  primary_aggregate: median
+  b_risk_conservative_aggregate: max
+  aquatic_t_risk_conservative_aggregate: min
+  high_iqr_log_units: 1.0
+  extreme_iqr_log_units: 2.0
+  high_quality_datasets:
+    - ECHA_B
+    - ECHA_P
+    - ECHA_T
+    - NITE_BCF_B
+    - NITE_BIODEG_P
+    - OPENFOODTOX_T
+  lower_confidence_tiers:
+    - tier_2_unqualified_point_estimate
